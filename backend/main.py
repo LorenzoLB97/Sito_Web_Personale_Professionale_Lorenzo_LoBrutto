@@ -1,30 +1,18 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
+
+from routers import projects
 
 app = FastAPI()
 
-class Project(BaseModel):
-    title: str
-    description: str
-    tech_stack: list[str]
-    github_url: str | None = None  # opzionale, può non esserci
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # in sviluppo va bene, in produzione andrà ristretto
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/projects")
-def get_projects():
-    projects = [
-        Project(
-            title="Il mio sito portfolio",
-            description="Sito personale full-stack con FastAPI e frontend custom",
-            tech_stack=["Python", "FastAPI", "JavaScript"],
-            github_url="https://github.com/tuonome/mio-sito"
-        ),
-        Project(
-            title="Altro progetto",
-            description="Descrizione di esempio",
-            tech_stack=["Python"],
-        )
-    ]
-    return projects
+app.include_router(projects.router)
 
 @app.get("/")
 def read_root():
